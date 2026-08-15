@@ -18,6 +18,12 @@ def render_inline(text):
 def _consume_list(lines, i):
     first = LIST_RE.match(lines[i])
     ordered = first.group(2)[0].isdigit()
+    start = 1
+    if ordered:
+        try:
+            start = int(first.group(2)[:-1])
+        except ValueError:
+            start = 1
     items = []
     while i < len(lines):
         match = LIST_RE.match(lines[i])
@@ -25,8 +31,12 @@ def _consume_list(lines, i):
             break
         items.append(render_inline(match.group(3).strip()))
         i += 1
-    tag = "ol" if ordered else "ul"
-    return f"<{tag}>" + "".join(f"<li>{t}</li>" for t in items) + f"</{tag}>", i
+    if ordered:
+        open_tag = "<ol>" if start == 1 else f'<ol start="{start}">'
+        close_tag = "</ol>"
+    else:
+        open_tag, close_tag = "<ul>", "</ul>"
+    return open_tag + "".join(f"<li>{t}</li>" for t in items) + close_tag, i
 
 
 def convert(markdown):

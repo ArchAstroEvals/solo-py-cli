@@ -13,3 +13,7 @@ def test_list_stops_at_blank_line():
     html = convert("- a\n\ntext")
     assert "<ul><li>a</li></ul>" in html
     assert "<p>text</p>" in html
+
+
+def test_ordered_start_number():
+    assert '<ol start="3">' in convert("3. a\n4. b")
