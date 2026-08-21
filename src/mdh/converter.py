@@ -15,6 +15,27 @@ def render_inline(text):
     return out
 
 
+def _is_delim(line):
+    cells = [c.strip() for c in line.strip().strip("|").split("|")]
+    return bool(cells) and all(re.fullmatch(r":?-{1,}:?", c) for c in cells)
+
+
+def _consume_table(lines, i):
+    header = [c.strip() for c in lines[i].strip().strip("|").split("|")]
+    rows = []
+    j = i + 2
+    while j < len(lines) and "|" in lines[j] and lines[j].strip():
+        rows.append([c.strip() for c in lines[j].strip().strip("|").split("|")])
+        j += 1
+
+    def cell(tag, text):
+        return f"<{tag}>{render_inline(text)}</{tag}>"
+
+    thead = "<thead><tr>" + "".join(cell("th", h) for h in header) + "</tr></thead>"
+    body = "<tbody>" + "".join("<tr>" + "".join(cell("td", v) for v in row) + "</tr>" for row in rows) + "</tbody>"
+    return f"<table>{thead}{body}</table>", j
+
+
 def _consume_list(lines, i):
     first = LIST_RE.match(lines[i])
     ordered = first.group(2)[0].isdigit()
@@ -72,6 +93,11 @@ def convert(markdown):
         if not line.strip():
             flush_para()
             i += 1
+            continue
+        if "|" in line and i + 1 < len(lines) and _is_delim(lines[i + 1]):
+            flush_para()
+            html_table, i = _consume_table(lines, i)
+            out.append(html_table)
             continue
         if LIST_RE.match(line):
             flush_para()
