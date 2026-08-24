@@ -11,3 +11,10 @@ def test_table():
 
 def test_table_renders_inline():
     assert "<strong>x</strong>" in convert("| a |\n|---|\n| **x** |")
+
+
+def test_table_alignment():
+    md = "| a | b |\n|:--|--:|\n| 1 | 2 |"
+    html = convert(md)
+    assert 'align="left"' in html
+    assert 'align="right"' in html

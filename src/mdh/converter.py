@@ -20,19 +20,33 @@ def _is_delim(line):
     return bool(cells) and all(re.fullmatch(r":?-{1,}:?", c) for c in cells)
 
 
+def _cell_align(marker):
+    left = marker.startswith(":")
+    right = marker.endswith(":")
+    if left and right:
+        return "center"
+    if right:
+        return "right"
+    if left:
+        return "left"
+    return None
+
+
 def _consume_table(lines, i):
     header = [c.strip() for c in lines[i].strip().strip("|").split("|")]
+    aligns = [_cell_align(c.strip()) for c in lines[i + 1].strip().strip("|").split("|")]
     rows = []
     j = i + 2
     while j < len(lines) and "|" in lines[j] and lines[j].strip():
         rows.append([c.strip() for c in lines[j].strip().strip("|").split("|")])
         j += 1
 
-    def cell(tag, text):
-        return f"<{tag}>{render_inline(text)}</{tag}>"
+    def cell(tag, text, align):
+        attr = f' align="{align}"' if align else ""
+        return f"<{tag}{attr}>{render_inline(text)}</{tag}>"
 
-    thead = "<thead><tr>" + "".join(cell("th", h) for h in header) + "</tr></thead>"
-    body = "<tbody>" + "".join("<tr>" + "".join(cell("td", v) for v in row) + "</tr>" for row in rows) + "</tbody>"
+    thead = "<thead><tr>" + "".join(cell("th", h, a) for h, a in zip(header, aligns)) + "</tr></thead>"
+    body = "<tbody>" + "".join("<tr>" + "".join(cell("td", v, a) for v, a in zip(row, aligns)) + "</tr>" for row in rows) + "</tbody>"
     return f"<table>{thead}{body}</table>", j
 
 
