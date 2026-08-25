@@ -83,7 +83,7 @@ def convert(markdown):
 
     def flush_para():
         if para:
-            out.append(f"<p>{render_inline(' '.join(para))}</p>")
+            out.append(f"<p>{render_inline("\n".join(para)).replace("  \n", "<br>")}</p>")
             para.clear()
 
     while i < len(lines):
@@ -126,6 +126,11 @@ def convert(markdown):
                 i += 1
             out.append("<blockquote>" + "\n".join(f"<p>{render_inline(q)}</p>" for q in quotes) + "</blockquote>")
             continue
+        if re.fullmatch(r"\s*([-*_])(\s*\1){2,}\s*", line):
+            flush_para()
+            out.append("<hr>")
+            i += 1
+            continue
         match = re.match(r"^(#{1,6})\s+(.*)$", line)
         if match:
             flush_para()
@@ -133,7 +138,10 @@ def convert(markdown):
             out.append(f"<h{level}>{render_inline(match.group(2).strip())}</h{level}>")
             i += 1
             continue
-        para.append(line.strip())
+        stripped = line.strip()
+        if stripped and line.endswith("  "):
+            stripped += "  "
+        para.append(stripped)
         i += 1
     flush_para()
     return "\n".join(out)
