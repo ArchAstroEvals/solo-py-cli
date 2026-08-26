@@ -1,4 +1,4 @@
-"""Block-level Markdown to HTML conversion (v2: line parser)."""
+"""Block-level Markdown to HTML conversion (v3: nested lists)."""
 import html
 import re
 
@@ -50,28 +50,42 @@ def _consume_table(lines, i):
     return f"<table>{thead}{body}</table>", j
 
 
-def _consume_list(lines, i):
-    first = LIST_RE.match(lines[i])
-    ordered = first.group(2)[0].isdigit()
+def _render_list(lines, i, indent):
+    entries = []
+    kind = None
     start = 1
-    if ordered:
-        try:
-            start = int(first.group(2)[:-1])
-        except ValueError:
-            start = 1
-    items = []
     while i < len(lines):
         match = LIST_RE.match(lines[i])
         if not match:
             break
-        items.append(render_inline(match.group(3).strip()))
+        level = len(match.group(1).expandtabs(4))
+        if level < indent:
+            break
+        if level > indent:
+            if not entries:
+                break
+            sub, i = _render_list(lines, i, level)
+            entries[-1][1] += sub
+            continue
+        marker = match.group(2)
+        if kind is None:
+            kind = "ol" if marker[0].isdigit() else "ul"
+            if kind == "ol":
+                try:
+                    start = int(marker[:-1])
+                except ValueError:
+                    start = 1
+        entries.append([render_inline(match.group(3).strip()), ""])
         i += 1
-    if ordered:
+    if not entries:
+        return "", i
+    if kind == "ol":
         open_tag = "<ol>" if start == 1 else f'<ol start="{start}">'
         close_tag = "</ol>"
     else:
         open_tag, close_tag = "<ul>", "</ul>"
-    return open_tag + "".join(f"<li>{t}</li>" for t in items) + close_tag, i
+    body = "".join(f"<li>{text}{sub}</li>" for text, sub in entries)
+    return open_tag + body + close_tag, i
 
 
 def convert(markdown):
@@ -83,7 +97,7 @@ def convert(markdown):
 
     def flush_para():
         if para:
-            out.append(f"<p>{render_inline("\n".join(para)).replace("  \n", "<br>")}</p>")
+            out.append(f"<p>{render_inline(chr(10).join(para)).replace('  ' + chr(10), '<br>')}</p>")
             para.clear()
 
     while i < len(lines):
@@ -115,7 +129,7 @@ def convert(markdown):
             continue
         if LIST_RE.match(line):
             flush_para()
-            html_list, i = _consume_list(lines, i)
+            html_list, i = _render_list(lines, i, 0)
             out.append(html_list)
             continue
         if line.lstrip().startswith(">"):
@@ -124,7 +138,7 @@ def convert(markdown):
             while i < len(lines) and lines[i].lstrip().startswith(">"):
                 quotes.append(lines[i].lstrip()[1:].lstrip())
                 i += 1
-            out.append("<blockquote>" + "\n".join(f"<p>{render_inline(q)}</p>" for q in quotes) + "</blockquote>")
+            out.append("<blockquote>" + chr(10).join(f"<p>{render_inline(q)}</p>" for q in quotes) + "</blockquote>")
             continue
         if re.fullmatch(r"\s*([-*_])(\s*\1){2,}\s*", line):
             flush_para()
@@ -144,4 +158,4 @@ def convert(markdown):
         para.append(stripped)
         i += 1
     flush_para()
-    return "\n".join(out)
+    return chr(10).join(out)
