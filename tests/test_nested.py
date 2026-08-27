@@ -11,3 +11,7 @@ def test_nested_ordered():
 
 def test_star_bullets():
     assert convert("* a\n* b") == "<ul><li>a</li><li>b</li></ul>"
+
+
+def test_paren_marker():
+    assert convert("1) a\n2) b") == "<ol><li>a</li><li>b</li></ol>"

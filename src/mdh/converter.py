@@ -2,7 +2,7 @@
 import html
 import re
 
-LIST_RE = re.compile(r"^(\s*)([-*+]|\d+\.)\s+(.*)$")
+LIST_RE = re.compile(r"^(\s*)([-*+]|\d+[.)])\s+(.*)$")
 
 
 def render_inline(text):
