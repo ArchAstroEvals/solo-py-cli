@@ -159,3 +159,9 @@ def convert(markdown):
         i += 1
     flush_para()
     return chr(10).join(out)
+
+
+def render_document(body, title="Document", css=None):
+    style = f"<style>{css}</style>" if css else ""
+    head = f'<meta charset="utf-8"><title>{html.escape(title)}</title>{style}'
+    return f"<!DOCTYPE html>\n<html>\n<head>{head}</head>\n<body>\n{body}\n</body>\n</html>"

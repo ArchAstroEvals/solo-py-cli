@@ -2,13 +2,16 @@
 import argparse
 import sys
 
-from .converter import convert
+from .converter import convert, render_document
 
 
 def build_parser():
     parser = argparse.ArgumentParser(prog="mdh", description="Convert Markdown to HTML.")
     parser.add_argument("input", nargs="?", help="Input Markdown file (default: stdin).")
     parser.add_argument("-o", "--output", help="Output HTML file (default: stdout).")
+    parser.add_argument("--standalone", action="store_true", help="Emit a full HTML document.")
+    parser.add_argument("--title", default="Document", help="Title for standalone output.")
+    parser.add_argument("--css", help="Inline CSS for standalone output.")
     return parser
 
 
@@ -21,7 +24,12 @@ def read_input(path):
 
 def main(argv=None):
     args = build_parser().parse_args(argv)
-    html = convert(read_input(args.input)) + "\n"
+    body = convert(read_input(args.input))
+    if args.standalone:
+        html = render_document(body, title=args.title, css=args.css)
+    else:
+        html = body
+    html += "\n"
     if args.output:
         with open(args.output, "w", encoding="utf-8") as handle:
             handle.write(html)
