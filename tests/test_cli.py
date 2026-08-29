@@ -24,3 +24,20 @@ def test_output_file(tmp_path, capsys):
     assert main([str(src), "-o", str(dest)]) == 0
     assert dest.read_text() == "<p>hi</p>\n"
     assert capsys.readouterr().out == ""
+
+
+def test_standalone(tmp_path, capsys):
+    src = tmp_path / "doc.md"
+    src.write_text("# T\n")
+    assert main([str(src), "--standalone", "--title", "T"]) == 0
+    out = capsys.readouterr().out
+    assert "<title>T</title>" in out
+    assert "<h1>T</h1>" in out
+
+
+def test_standalone_css(tmp_path, capsys):
+    src = tmp_path / "doc.md"
+    src.write_text("hi\n")
+    assert main([str(src), "--standalone", "--css", "body{color:red}"]) == 0
+    out = capsys.readouterr().out
+    assert "<style>body{color:red}</style>" in out
