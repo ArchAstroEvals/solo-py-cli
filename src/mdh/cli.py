@@ -2,6 +2,7 @@
 import argparse
 import sys
 
+from . import __version__
 from .converter import convert, render_document
 
 
@@ -12,6 +13,7 @@ def build_parser():
     parser.add_argument("--standalone", action="store_true", help="Emit a full HTML document.")
     parser.add_argument("--title", default="Document", help="Title for standalone output.")
     parser.add_argument("--css", help="Inline CSS for standalone output.")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     return parser
 
 

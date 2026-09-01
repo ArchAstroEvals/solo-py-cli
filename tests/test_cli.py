@@ -41,3 +41,13 @@ def test_standalone_css(tmp_path, capsys):
     assert main([str(src), "--standalone", "--css", "body{color:red}"]) == 0
     out = capsys.readouterr().out
     assert "<style>body{color:red}</style>" in out
+
+
+def test_version(capsys):
+    try:
+        main(["--version"])
+    except SystemExit as exc:
+        assert exc.code == 0
+    else:
+        raise AssertionError("expected SystemExit")
+    assert "mdh 0.1.0" in capsys.readouterr().out
