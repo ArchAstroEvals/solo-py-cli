@@ -51,3 +51,8 @@ def test_version(capsys):
     else:
         raise AssertionError("expected SystemExit")
     assert "mdh 0.1.0" in capsys.readouterr().out
+
+
+def test_missing_file(capsys):
+    assert main(["nope.md"]) == 2
+    assert "No such file" in capsys.readouterr().err

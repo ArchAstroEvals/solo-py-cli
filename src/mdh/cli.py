@@ -26,7 +26,11 @@ def read_input(path):
 
 def main(argv=None):
     args = build_parser().parse_args(argv)
-    body = convert(read_input(args.input))
+    try:
+        body = convert(read_input(args.input))
+    except FileNotFoundError:
+        print(f"mdh: {args.input}: No such file or directory", file=sys.stderr)
+        return 2
     if args.standalone:
         html = render_document(body, title=args.title, css=args.css)
     else:
