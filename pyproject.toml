@@ -8,6 +8,8 @@ version = "0.1.0"
 description = "Minimal Markdown-to-HTML converter CLI"
 readme = "README.md"
 requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Solo Dev", email = "solo@example.com" }]
 
 [project.scripts]
 mdh = "mdh.cli:main"
