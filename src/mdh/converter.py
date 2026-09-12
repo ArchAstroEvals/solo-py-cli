@@ -13,7 +13,7 @@ def render_document(body, title="Document", css=None):
 
 
 def convert(markdown):
-    lines = markdown.split("\n")
+    lines = markdown.replace("\r\n", "\n").replace("\r", "\n").split("\n")
     out = []
     para = []
     i = 0

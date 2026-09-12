@@ -15,3 +15,7 @@ def test_hard_break():
 
 def test_soft_break_keeps_space():
     assert convert("a\nb") == "<p>a\nb</p>"
+
+
+def test_crlf():
+    assert convert("# T\r\n\r\npara\r\n") == "<h1>T</h1>\n<p>para</p>"
