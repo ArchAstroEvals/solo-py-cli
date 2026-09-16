@@ -1,5 +1,7 @@
 # mdh
 
+![CI](https://github.com/ArchAstroEvals/solo-py-cli/actions/workflows/ci.yml/badge.svg)
+
 Minimal Markdown-to-HTML converter CLI. Supports headings, paragraphs, inline
 styles, links, images, lists (flat and nested), fenced code, blockquotes,
 tables, horizontal rules, and hard breaks.
