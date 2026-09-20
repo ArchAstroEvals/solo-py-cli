@@ -27,3 +27,7 @@ Missing input files exit with status 2.
 ## License
 
 MIT
+
+## Horizontal rules
+
+---, ***, and ___ on their own line render as <hr>.
