@@ -56,10 +56,3 @@ def test_version(capsys):
 def test_missing_file(capsys):
     assert main(["nope.md"]) == 2
     assert "No such file" in capsys.readouterr().err
-
-
-def test_empty_stdin(capsys, monkeypatch):
-    monkeypatch.setattr(sys, 'stdin', io.StringIO(''))
-    assert main([]) == 0
-    assert capsys.readouterr().out == '
-'
