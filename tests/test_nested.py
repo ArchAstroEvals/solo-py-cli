@@ -15,3 +15,7 @@ def test_star_bullets():
 
 def test_paren_marker():
     assert convert("1) a\n2) b") == "<ol><li>a</li><li>b</li></ol>"
+
+
+def test_mixed_nesting():
+    assert convert('- a\n  1. b') == '<ul><li>a<ol><li>b</li></ol></li></ul>'
