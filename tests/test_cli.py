@@ -61,5 +61,4 @@ def test_missing_file(capsys):
 def test_empty_stdin(capsys, monkeypatch):
     monkeypatch.setattr(sys, 'stdin', io.StringIO(''))
     assert main([]) == 0
-    assert capsys.readouterr().out == '
-'
+    assert capsys.readouterr().out == '\n',
